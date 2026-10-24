@@ -17,17 +17,21 @@
 
 source("run_analysis.R")
 
-# The eight schedules in Table 1, in the same order as the columns of
+# The eight schedules in Table 1 and slower coverage scale-up with a
+# 2-year delay, in the same order as the columns of
 # results_random_orders_deaths.csv.
 schedules <- data.frame(
   file   = c("01_Baseline", "02_One_year_later", "03_Two_years_later",
              "04_Three_years_later", "05_Four_years_later", "06_Five_years_later",
-             "07_Slower_scale_up", "08_Slower_scale_up_one_year_later"),
-  label  = c("Baseline", "1 year later", "2 years later", "3 years later",
-             "4 years later", "5 years later",
-             "Slower scale-up, baseline dates", "Slower scale-up, 1 year later"),
-  delay  = c(0:5, 0, 1),
-  slower = c(rep(FALSE, 6), TRUE, TRUE))
+             "07_Slower_scale_up", "08_Slower_scale_up_one_year_later",
+             "09_Slower_scale_up_two_years_later"),
+  label  = c("Baseline", "1-year delay", "2-year delay", "3-year delay",
+             "4-year delay", "5-year delay",
+             "Slower coverage scale-up, baseline dates",
+             "Slower coverage scale-up, 1-year delay",
+             "Slower coverage scale-up, 2-year delay"),
+  delay  = c(0:5, 0, 1, 2),
+  slower = c(rep(FALSE, 6), TRUE, TRUE, TRUE))
 
 
 # ---- Numbers for panel A ----------------------------------------------
@@ -96,9 +100,9 @@ draw_a <- function() {
 # can be seen. The spread is random but fixed by set.seed, and it does
 # not change any result.
 draw_b <- function() {
-  rows <- c(7.4, 6.4, 5.4, 4.4, 3.4, 1.8, 0.8)
+  rows <- c(8.4, 7.4, 6.4, 5.4, 4.4, 2.8, 1.8, 0.8)
   par(mar = c(4, 12.6, 0.8, 7.6), family = "sans", las = 1, mgp = c(2.6, 0.7, 0))
-  plot(NA, xlim = c(-80, 0), ylim = c(0.2, 9.7), axes = FALSE, xlab = "", ylab = "", xaxs = "i")
+  plot(NA, xlim = c(-80, 0), ylim = c(0.2, 11.2), axes = FALSE, xlab = "", ylab = "", xaxs = "i")
   abline(v = seq(-70, -10, 10), col = "grey92", lwd = 0.8)
   abline(v = 0, col = "grey55", lwd = 1)
   axis(1, at = seq(-80, 0, 10), labels = minus(seq(-80, 0, 10)), cex.axis = 0.8, col = "grey40")
@@ -121,16 +125,16 @@ draw_b <- function() {
   }
 
   # Key, top left.
-  segments(-78.5, 9.25, -78.5, 9.65, lwd = 3, col = blues[1])
-  text(-76.5, 9.45, "Primary analysis", adj = c(0, 0.5), cex = 0.7, col = "grey15")
-  points(c(-79.1, -78.5, -77.9), c(8.65, 8.75, 8.67), pch = 16, cex = 0.45,
+  segments(-78.5, 10.65, -78.5, 11.05, lwd = 3, col = blues[1])
+  text(-76.5, 10.85, "Primary analysis", adj = c(0, 0.5), cex = 0.7, col = "grey15")
+  points(c(-79.1, -78.5, -77.9), c(9.65, 9.75, 9.67), pch = 16, cex = 0.45,
          col = adjustcolor(blues[3], 0.6))
-  text(-76.5, 8.7, "Each of 1,000 random country orders", adj = c(0, 0.5), cex = 0.7, col = "grey15")
+  text(-76.5, 9.7, "Each of 1,000 constrained\nrandom country orders", adj = c(0, 0.5), cex = 0.7, col = "grey15")
 }
 
 
 # ---- Save ---------------------------------------------------------------
 png("figure1a.png", width = 6.5, height = 4.5, units = "in", res = 300); draw_a(); dev.off()
 tiff("figure1a.tiff", width = 6.5, height = 4.5, units = "in", res = 300, compression = "lzw"); draw_a(); dev.off()
-png("figure1b.png", width = 6.5, height = 3.6, units = "in", res = 300); draw_b(); dev.off()
-tiff("figure1b.tiff", width = 6.5, height = 3.6, units = "in", res = 300, compression = "lzw"); draw_b(); dev.off()
+png("figure1b.png", width = 6.5, height = 4, units = "in", res = 300); draw_b(); dev.off()
+tiff("figure1b.tiff", width = 6.5, height = 4, units = "in", res = 300, compression = "lzw"); draw_b(); dev.off()

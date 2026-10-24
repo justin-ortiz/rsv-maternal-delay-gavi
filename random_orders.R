@@ -127,10 +127,12 @@ stopifnot(abs(check_base - results$deaths[1]) < 1)
 
 # Schedules: how many years every start year moves, and whether scale-up
 # is slower. Every order is applied to every schedule.
-schedules <- data.frame(schedule = c("Baseline", paste(1:5, "years later"),
-                                     "Slower scale-up", "Slower scale-up, 1 year later"),
-                        shift  = c(0:5, 0, 1),
-                        slower = c(rep(FALSE, 6), TRUE, TRUE))
+schedules <- data.frame(schedule = c("Baseline", paste0(1:5, "-year delay"),
+                                     "Slower coverage scale-up, baseline dates",
+                                     "Slower coverage scale-up, 1-year delay",
+                                     "Slower coverage scale-up, 2-year delay"),
+                        shift  = c(0:5, 0, 1, 2),
+                        slower = c(rep(FALSE, 6), TRUE, TRUE, TRUE))
 
 set.seed(seed)
 deaths <- matrix(NA, n_orders, nrow(schedules), dimnames = list(NULL, schedules$schedule))

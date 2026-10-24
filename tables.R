@@ -67,20 +67,22 @@ ref <- r$scenario == r$scenario[1]
 
 
 # ---- Table 1 ---------------------------------------------------------
-# Baseline, five delays, and slower scale-up on baseline dates and 1
-# year later. The percentage is the change in deaths prevented as a
+# Baseline, five delays, and slower scale-up on baseline dates, with a
+# 1-year delay, and with a 2-year delay. The percentage is the change in deaths prevented as a
 # share of deaths prevented on the baseline schedule.
 
 t1 <- r[match(c("01_Baseline", "02_One_year_later", "03_Two_years_later",
                 "04_Three_years_later", "05_Four_years_later", "06_Five_years_later",
-                "07_Slower_scale_up", "08_Slower_scale_up_one_year_later"), r$scenario), ]
+                "07_Slower_scale_up", "08_Slower_scale_up_one_year_later",
+                "09_Slower_scale_up_two_years_later"), r$scenario), ]
 is_ref <- t1$scenario == "01_Baseline"
 
 table_1 <- data.frame(
-  "Schedule" = c("Baseline", "1 year later", "2 years later", "3 years later",
-                 "4 years later", "5 years later",
+  "Schedule" = c("Baseline", "1-year delay", "2-year delay", "3-year delay",
+                 "4-year delay", "5-year delay",
                  "Slower coverage scale-up, baseline dates",
-                 "Slower coverage scale-up, 1 year later"),
+                 "Slower coverage scale-up, 1-year delay",
+                 "Slower coverage scale-up, 2-year delay"),
   "Countries started by 2030 / 2037" = sapply(t1$scenario, started),
   "Deaths prevented (95% UI)" = with_ui(t1$deaths, t1$deaths_lower, t1$deaths_upper, -2),
   "Change from baseline, deaths (95% UI)" =
@@ -98,14 +100,14 @@ write_table(table_1, "table_1.tsv")
 
 s1 <- r[r$scenario < "14", ]
 labels <- c("01_Baseline"                        = "Baseline",
-            "02_One_year_later"                  = "1 year later",
-            "03_Two_years_later"                 = "2 years later",
-            "04_Three_years_later"               = "3 years later",
-            "05_Four_years_later"                = "4 years later",
-            "06_Five_years_later"                = "5 years later",
+            "02_One_year_later"                  = "1-year delay",
+            "03_Two_years_later"                 = "2-year delay",
+            "04_Three_years_later"               = "3-year delay",
+            "05_Four_years_later"                = "4-year delay",
+            "06_Five_years_later"                = "5-year delay",
             "07_Slower_scale_up"                 = "Slower coverage scale-up, baseline dates",
-            "08_Slower_scale_up_one_year_later"  = "Slower coverage scale-up, 1 year later",
-            "09_Slower_scale_up_two_years_later" = "Slower coverage scale-up, 2 years later",
+            "08_Slower_scale_up_one_year_later"  = "Slower coverage scale-up, 1-year delay",
+            "09_Slower_scale_up_two_years_later" = "Slower coverage scale-up, 2-year delay",
             "10_RSV_follows_PCV"                 = "RSV follows the pattern of PCV",
             "11_RSV_follows_rotavirus"           = "RSV follows the pattern of rotavirus vaccine",
             "12_RSV_follows_HPV"                 = "RSV follows the pattern of HPV vaccine",
@@ -144,10 +146,11 @@ is_ref <- orders$schedule == "Baseline"
 pct <- function(x) ifelse(is_ref, "Reference", num(x))
 
 table_S2 <- data.frame(
-  "Scenario" = c("Baseline", "1 year later", "2 years later", "3 years later",
-                 "4 years later", "5 years later",
+  "Scenario" = c("Baseline", "1-year delay", "2-year delay", "3-year delay",
+                 "4-year delay", "5-year delay",
                  "Slower coverage scale-up, baseline dates",
-                 "Slower coverage scale-up, 1 year later"),
+                 "Slower coverage scale-up, 1-year delay",
+                 "Slower coverage scale-up, 2-year delay"),
   "Deaths prevented, primary analysis" = num(orders$deaths_primary, -2),
   "Deaths prevented, constrained random orders, median (95% range)" =
     with_ui(orders$deaths_median, orders$deaths_lower, orders$deaths_upper, -2),
