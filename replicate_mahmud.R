@@ -8,8 +8,9 @@
 # vaccine results in the published supplement (Additional file 1, Table
 # S12).
 #
-# Run the whole file. It prints the comparison and writes
-# results_replication.csv.
+# Run the whole file. It prints two comparisons and writes two files.
+#   results_replication.csv           outcomes prevented (used for Table S4)
+#   results_replication_baseline.csv  outcomes with no vaccination
 
 source("mahmud_model.R")
 
@@ -47,3 +48,47 @@ names(result)[4] <- "difference_pct"
 cat("\nCountries:", nrow(d), "\n\n")
 print(result, row.names = FALSE)
 write.csv(result, "results_replication.csv", row.names = FALSE)
+
+
+# Second check, added 31 October 2026: outcomes with no vaccination.
+#
+# The check above compares outcomes prevented. A close match there can
+# hide two differences that cancel. This check compares the published
+# totals with no vaccination (Table S12, Baseline rows, UNIVAC column),
+# which depend only on person-years, the RSV rates, and how years of life
+# lost are calculated, not on coverage or efficacy.
+#
+# These are written to a separate file so that Table S4 (tables.R) does
+# not change.
+
+severe     <- sum(d$PY_0to5 * d$sev_mid  / 1e5)
+nonsevere  <- sum(d$PY_0to5 * d$non_mid  / 1e5)
+admissions <- sum(d$PY_0to5 * d$hosp_mid / 1e5)
+deaths     <- d$PY_0to5 * d$dth_mid / 1e5   # one value per country
+
+# DALYs are calculated the same way as in mahmud_outcomes(): deaths times
+# discounted life expectancy at birth, plus years lived with disability
+# for the acute illness.
+dalys <- sum(deaths * d$e0_discounted) +
+  severe    * weight_severe    * days_severe    / 365 +
+  nonsevere * weight_nonsevere * days_nonsevere / 365
+
+published_base <- c(cases      = 31882631,
+                    admissions = 3468109,
+                    deaths     = 108904,
+                    dalys      = 3116915)
+
+ours_base <- c(cases      = severe + nonsevere,
+               admissions = admissions,
+               deaths     = sum(deaths),
+               dalys      = dalys)
+
+baseline <- data.frame(outcome   = names(published_base),
+                       published = unname(published_base),
+                       ours      = round(unname(ours_base)),
+                       difference = round(100 * (unname(ours_base) / unname(published_base) - 1), 1))
+names(baseline)[4] <- "difference_pct"
+
+cat("\nNo vaccination, compared with Table S12 Baseline rows\n\n")
+print(baseline, row.names = FALSE)
+write.csv(baseline, "results_replication_baseline.csv", row.names = FALSE)
