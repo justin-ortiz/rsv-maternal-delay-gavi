@@ -102,3 +102,13 @@ Source model: Mahmud S, Baral R, Sanderson C, et al. Cost-effectiveness
 of pharmaceutical strategies to prevent respiratory syncytial virus
 disease in young children: a decision-support model for use in
 low-income and middle-income countries. BMC Med. 2023;21:138.
+
+## Versions
+
+The preprint posted to Research Square on 24 October 2026 corresponds to commit
+762bd85 of the same date, which used version 1.0 of the reconstruction of the
+published acute RSV model.
+
+The current state of this repository uses version 1.1 of the reconstruction. The
+only results that changed are in Table S4, which compares our reconstruction with
+the published results. The main results are identical under both versions.
