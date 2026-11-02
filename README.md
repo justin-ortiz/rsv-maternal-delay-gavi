@@ -5,6 +5,13 @@ maternal RSV vaccination in the 56 countries eligible for Gavi support,
 for infants born 2028–2037, when introduction starts late or coverage
 scales up slowly.
 
+The reconstruction of the published acute RSV model is version 1.1, copied
+from the repository mahmud-rsv-reconstruction, where it is maintained. The
+main results, Table 1 and Tables S1 to S3 are unchanged from version 1.0,
+because the delay analysis reads only discounted life expectancy from the
+2025 cohort file and reports deaths and hospitalizations. Table S4, which
+compares our reconstruction with the published results, changed.
+
     mahmud_model.R                 the published acute RSV model, as functions
     assumptions.R                  settings and file names
     read_scenario.R                reads one scenario saved from the demand workbook
