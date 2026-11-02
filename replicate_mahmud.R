@@ -68,10 +68,12 @@ deaths     <- d$PY_0to5 * d$dth_mid / 1e5   # one value per country
 
 # DALYs are calculated the same way as in mahmud_outcomes(): deaths times
 # discounted life expectancy at birth, plus years lived with disability
-# for the acute illness.
-dalys <- sum(deaths * d$e0_discounted) +
-  severe    * weight_severe    * days_severe    / 365 +
-  nonsevere * weight_nonsevere * days_nonsevere / 365
+# for the acute illness, each discounted to birth for the age at which the
+# event happens. With no vaccination, events happen at any age up to 5, so
+# we use the discount for all ages under 5 (version 1.1).
+dalys <- sum(deaths * d$e0_discounted) * timing_severe_5y +
+  severe    * weight_severe    * days_severe    / 365 * timing_severe_5y +
+  nonsevere * weight_nonsevere * days_nonsevere / 365 * timing_nonsevere_5y
 
 published_base <- c(cases      = 31882631,
                     admissions = 3468109,

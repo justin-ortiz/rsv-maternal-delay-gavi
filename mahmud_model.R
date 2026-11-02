@@ -2,8 +2,9 @@
 # al., BMC Medicine 2023;21:138). We rebuilt the model from the paper and
 # its supplement. We did not use the UNIVAC software.
 #
-# This file is the same in rsv-maternal-delay-gavi and
-# rsv-asthma-maternal-lmic. If you change it, change both copies.
+# Version 1.1. The original of this file is in the repository
+# justin-ortiz/mahmud-rsv-reconstruction. Edit it only there. Papers that
+# use it keep a copy and say which version they used.
 
 
 # Values from the published model. We hold them as published, so that
@@ -29,6 +30,35 @@ weight_severe    <- 0.133
 days_severe      <- 10
 weight_nonsevere <- 0.051
 days_nonsevere   <- 5
+
+
+
+# Discounting DALYs to birth (added in version 1.1).
+#
+# The published model discounts future health effects at 3% over the
+# lifetime of the birth cohort (main paper, Methods, page 6). An RSV death
+# at 3 months happens 3 months after birth, so its DALYs are discounted by
+# 1.03 to the power of minus 0.25. Version 1.0 counted every death and
+# illness as if it happened at birth.
+#
+# We take the age of each event from the published age distribution (main
+# paper, Table 1: cumulative share of under-5 events by 1 month, 3 months,
+# 6 months, 1 year, 2 years and 5 years). Events in each age band are
+# discounted at the middle of the band, in years.
+discount_rate <- 0.03
+severe_cum    <- c(0.0391, 0.3560, 0.5953, 0.7721, 0.8948, 1)
+nonsevere_cum <- c(0.0029, 0.1065, 0.3790, 0.6585, 0.8491, 1)
+band_middle   <- c(0.5, 2, 4.5, 9, 18, 42) / 12   # 0-1 m, 1-3 m, 3-6 m, 6-12 m, 1-2 y, 2-5 y
+
+# Average discount for the events in the first n_bands age bands.
+timing_discount <- function(cum, n_bands) {
+  share <- diff(c(0, cum))[1:n_bands]
+  sum(share * (1 + discount_rate)^(-band_middle[1:n_bands])) / sum(share)
+}
+timing_severe_6mo    <- timing_discount(severe_cum, 3)      # events prevented: first 6 months
+timing_nonsevere_6mo <- timing_discount(nonsevere_cum, 3)
+timing_severe_5y     <- timing_discount(severe_cum, 6)      # all events before age 5
+timing_nonsevere_5y  <- timing_discount(nonsevere_cum, 6)
 
 
 # RSV outcomes prevented in one birth cohort, one row per country.
@@ -58,10 +88,13 @@ mahmud_outcomes <- function(person_years, coverage, rates, life_exp_disc,
   deaths_prev     <- deaths     * severe_by_6mo    * coverage * efficacy
 
   # DALYs prevented. Years of life lost dominate. The acute illness adds
-  # a small amount of years lived with disability.
-  dalys_prev <- deaths_prev * life_exp_disc +
-    severe_prev    * weight_severe    * days_severe    / 365 +
-    nonsevere_prev * weight_nonsevere * days_nonsevere / 365
+  # a small amount of years lived with disability. Both are discounted to
+  # birth for the age at which the event happens (see above). Deaths follow
+  # the age distribution of severe disease.
+  yll_prev <- deaths_prev * life_exp_disc * timing_severe_6mo
+  yld_prev <- severe_prev    * weight_severe    * days_severe    / 365 * timing_severe_6mo +
+    nonsevere_prev * weight_nonsevere * days_nonsevere / 365 * timing_nonsevere_6mo
+  dalys_prev <- yll_prev + yld_prev
 
   # Episodes in the first year of life without vaccination. The asthma
   # analysis uses these as its exposure. The delay analysis does not.
@@ -70,6 +103,8 @@ mahmud_outcomes <- function(person_years, coverage, rates, life_exp_disc,
              cases_prevented      = severe_prev + nonsevere_prev,
              admissions_prevented = admissions_prev,
              deaths_prevented     = deaths_prev,
+             yll_prevented        = yll_prev,
+             yld_prevented        = yld_prev,
              dalys_prevented      = dalys_prev,
              severe_first_year    = severe    * severe_by_12mo,
              nonsevere_first_year = nonsevere * nonsevere_by_12mo)
